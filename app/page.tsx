@@ -1,7 +1,7 @@
 import MaxWidthWrapper from '@/components/MaxWidthWrapper'
-// import { Icons } from '@/components/Icons'
+import { Icons } from '@/components/Icons'
 import Phone from '@/components/Phone'
-// import { Reviews } from '@/components/Reviews'
+import { Reviews } from '@/components/Reviews'
 import { buttonVariants } from '@/components/ui/button'
 import { ArrowRight, Check, Star } from 'lucide-react'
 import Link from 'next/link'
@@ -117,7 +117,7 @@ export default function Home() {
               What our{' '}
               <span className="relative px-2">
                 customers{' '}
-                {/* <Icons.underline className="hidden sm:block pointer-events-none absolute inset-x-0 -bottom-6 text-green-500" /> */}
+                <Icons.underline className="hidden sm:block pointer-events-none absolute inset-x-0 -bottom-6 text-green-500" />
               </span>{' '}
               say
             </h2>
@@ -199,7 +199,9 @@ export default function Home() {
           </div>
         </MaxWidthWrapper>
 
-        <div className="pt-16">{/* <Reviews /> */}</div>
+        <div className="pt-16">
+          <Reviews />
+        </div>
       </section>
 
       <section>
@@ -230,7 +232,7 @@ export default function Home() {
                 />
               </div>
 
-              {/* <Phone className="w-60" imgSrc="/horse_phone.jpg" /> */}
+              <Phone className="w-60" imgSrc="/horse_phone.jpg" />
             </div>
           </div>
 
