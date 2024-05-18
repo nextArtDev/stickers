@@ -34,7 +34,8 @@ model User {
   website  String?
   gender   String?
 
-  images Image[]
+  images   Image[]
+  Uploader Uploader[]
 }
 
 enum Role {
@@ -49,6 +50,20 @@ model Image {
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
-  User       User?    @relation(fields: [userId], references: [id])
+
+  User       User?     @relation(fields: [userId], references: [id])
   userId     String?
+  Uploader   Uploader? @relation(fields: [uploaderId], references: [id])
+  uploaderId String?
+}
+
+model Uploader {
+  id     String  @id @default(cuid())
+  images Image[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  User   User?   @relation(fields: [userId], references: [id])
+  userId String?
 }
