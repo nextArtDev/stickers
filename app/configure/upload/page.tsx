@@ -1,139 +1,171 @@
 'use client'
 
-import { Progress } from '@/components/ui/progress'
-import { useToast } from '@/components/ui/use-toast'
-import { createUpload } from '@/lib/actions/upload'
-// import { useUploadThing } from '@/lib/uploadthing'
-import { cn } from '@/lib/utils'
 import {
-  Image,
-  ImageIcon,
-  Loader2,
-  MousePointerSquareDashed,
-} from 'lucide-react'
-import { usePathname, useRouter } from 'next/navigation'
-import { useState, useTransition } from 'react'
-import Dropzone, { FileRejection } from 'react-dropzone'
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
+// import useMount from '@/hooks/useMount'
 
-const Page = () => {
-  const { toast } = useToast()
-  const [isDragOver, setIsDragOver] = useState<boolean>(false)
-  const [uploadProgress, setUploadProgress] = useState<number>(0)
-  const router = useRouter()
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useSession } from 'next-auth/react'
+import { ChangeEvent, startTransition, useRef, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
+import { z } from 'zod'
+
+import { Loader2, PictureInPicture } from 'lucide-react'
+import Image from 'next/image'
+
+import { Input } from '@/components/ui/input'
+import { uploadSchema } from '@/lib/schemas/upload'
+import { createUpload } from '@/lib/actions/upload'
+import { Button } from '@/components/ui/button'
+import { usePathname } from 'next/navigation'
+
+function ProfileAvatar() {
   const path = usePathname()
+  const [imgFile, setImgFile] = useState<File | undefined>(undefined)
+  const [displayUrl, setDisplayUrl] = useState('')
 
-  //   const { startUpload, isUploading } = useUploadThing('imageUploader', {
-  //     onClientUploadComplete: ([data]) => {
-  //       const configId = data.serverData.configId
-  //       startTransition(() => {
-  //         router.push(`/configure/design?id=${configId}`)
-  //       })
-  //     },
-  //     onUploadProgress(p) {
-  //       setUploadProgress(p)
-  //     },
-  //   })
+  function getImageData(event: ChangeEvent<HTMLInputElement>) {
+    // FileList is immutable, so we need to create a new one
+    const dataTransfer = new DataTransfer()
 
-  const onDropRejected = (rejectedFiles: FileRejection[]) => {
-    const [file] = rejectedFiles
+    // Add newly uploaded images
+    Array.from(event.target.files!).forEach((image) =>
+      dataTransfer.items.add(image)
+    )
 
-    setIsDragOver(false)
+    const files = dataTransfer.files
+    const displayUrl = URL.createObjectURL(event.target.files![0])
+    setDisplayUrl(displayUrl)
 
-    toast({
-      title: `${file.file.type} type is not supported.`,
-      description: 'Please choose a PNG, JPG, or JPEG image instead.',
-      variant: 'destructive',
-    })
+    return { files, displayUrl }
   }
 
-  const onDropAccepted = (acceptedFiles: File) => {
-    console.log(acceptedFiles)
-    const formData = new FormData()
+  const form = useForm<z.infer<typeof uploadSchema>>({
+    resolver: zodResolver(uploadSchema),
+    defaultValues: {
+      image: undefined,
+      // name: user.name || '',
+      // username: user.username || '',
+    },
+  })
+  const inputRef = useRef<HTMLInputElement>(null)
+  const [open, setOpen] = useState(false)
+  //   const mount = useMount()
 
-    formData.append('images', acceptedFiles)
+  //   if (!mount) return null
 
-    startTransition(() => {
-      createUpload(formData, path)
-        .then((res) => console.log(res))
-        .catch(() => console.log('مشکلی پیش آمده.'))
-    })
-    // startUpload(acceptedFiles, { configId: undefined })
-
-    setIsDragOver(false)
-  }
-
-  const [isPending, startTransition] = useTransition()
+  // @ts-ignore
+  // return <UserAvatar user={user}  className="w-20 h-20 md:w-36 md:h-36" />
+  // If its not our profile
 
   return (
-    <div
-      className={cn(
-        'relative h-full flex-1 my-16 w-full rounded-xl bg-gray-900/5 p-2 ring-1 ring-inset ring-gray-900/10 lg:rounded-2xl flex justify-center flex-col items-center',
-        {
-          'ring-blue-900/25 bg-blue-900/10': isDragOver,
-        }
-      )}
-    >
-      <div className="relative flex flex-1 flex-col items-center justify-center w-full">
-        <Dropzone
-          onDropRejected={onDropRejected}
-          onDropAccepted={onDropAccepted}
-          accept={{
-            'image/png': ['.png'],
-            'image/jpeg': ['.jpeg'],
-            'image/jpg': ['.jpg'],
-            'image/webp': ['.webp'],
-          }}
-          onDragEnter={() => setIsDragOver(true)}
-          onDragLeave={() => setIsDragOver(false)}
-        >
-          {({ getRootProps, getInputProps }) => (
-            <div
-              className="h-full w-full flex-1 flex flex-col items-center justify-center"
-              {...getRootProps()}
-            >
-              <input {...getInputProps()} />
-              {isDragOver ? (
-                <MousePointerSquareDashed className="h-6 w-6 text-zinc-500 mb-2" />
-              ) : //   ) : isUploading || isPending ? (
-              isPending ? (
-                <Loader2 className="animate-spin h-6 w-6 text-zinc-500 mb-2" />
-              ) : (
-                <ImageIcon className="h-6 w-6 text-zinc-500 mb-2" />
-              )}
-              <div className="flex flex-col justify-center mb-2 text-sm text-zinc-700">
-                {/* {isUploading ? ( */}
-                <div className="flex flex-col items-center">
-                  <p>Uploading...</p>
-                  <Progress
-                    value={uploadProgress}
-                    className="mt-2 w-40 h-2 bg-gray-300"
-                  />
-                </div>
-                {/* ) : isPending ? ( */}
-                <div className="flex flex-col items-center">
-                  <p>Redirecting, please wait...</p>
-                </div>
-                {/* ) : isDragOver ? ( */}
-                <p>
-                  <span className="font-semibold">Drop file</span> to upload
-                </p>
-                {/* ) : ( */}
-                <p>
-                  <span className="font-semibold">Click to upload</span> or drag
-                  and drop
-                </p>
-                {/* )} */}
-              </div>
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(async (values) => {
+          const formData = new FormData()
 
-              {isPending ? null : (
-                <p className="text-xs text-zinc-500">PNG, JPG, JPEG or WebP</p>
-              )}
-            </div>
+          if (imgFile) {
+            // await uploadUserImageToS3(imgFile, user.id)
+            formData.append('image', imgFile)
+          }
+
+          try {
+            startTransition(() => {
+              createUpload(formData, path)
+                .then((res) => {
+                  if (res?.errors.image) {
+                    form.setError('image', {
+                      type: 'custom',
+                      message: res?.errors.image?.join(' و '),
+                    })
+                  } else if (res?.errors?._form) {
+                    console.log(res?.errors?._form?.join(' و '))
+                    toast.error(res?.errors?._form?.join(' و '))
+                  }
+                })
+                .catch(() => toast.error('مشکلی پیش آمده.'))
+            })
+          } catch (error) {
+            console.log(error)
+            return toast.error('مشکلی پیش آمده')
+          }
+          setOpen(false)
+          form.reset()
+          // window.location.reload()
+        })}
+      >
+        <FormField
+          control={form.control}
+          name="image"
+          render={({ field: { onChange, value, ...rest } }) => (
+            <>
+              <FormItem className="my-8 flex flex-col items-center justify-center ">
+                <FormLabel>
+                  {!displayUrl ? (
+                    <div className="border px-16 py-4 rounded-xl flex flex-col gap-8 justify-center items-center cursor-pointer ">
+                      <PictureInPicture size={50} />
+                      <p>آپلود عکس</p>
+                    </div>
+                  ) : (
+                    <Image
+                      width={160}
+                      height={160}
+                      src={displayUrl}
+                      className="aspect-square object-cover rounded-full"
+                      alt="temporary"
+                    />
+                  )}
+                </FormLabel>
+                <FormControl>
+                  <input
+                    // multiple={''}
+                    className=" hidden "
+                    type="file"
+                    {...rest}
+                    onChange={(event) => {
+                      const { files, displayUrl } = getImageData(event)
+                      // console.log(files[0])
+                      onChange(files)
+                      setImgFile(files[0])
+                    }}
+                  />
+                </FormControl>
+
+                <FormMessage />
+              </FormItem>
+            </>
           )}
-        </Dropzone>
-      </div>
-    </div>
+        />
+
+        {/* {user.image && ( */}
+        <div className="py-8 max-w-sm mx-auto">
+          <Button
+            type="submit"
+            className="border-b border-zinc-300 dark:border-neutral-300 font-bold disabled:cursor-not-allowed w-full p-3"
+            onClick={() => {
+              form.setValue('image', '')
+              if (inputRef.current) {
+                inputRef.current.click()
+              }
+            }}
+            disabled={form.formState.isSubmitting}
+          >
+            تایید
+          </Button>
+        </div>
+        {/* )} */}
+
+        <input hidden ref={inputRef} />
+      </form>
+    </Form>
   )
 }
 
-export default Page
+export default ProfileAvatar

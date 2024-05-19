@@ -11,7 +11,7 @@ import { Uploader } from '@prisma/client'
 interface CreateUploadFormState {
   // success?: string
   errors: {
-    images?: string[]
+    image?: string[]
     _form?: string[]
   }
 }
@@ -21,7 +21,7 @@ export async function createUpload(
   path: string
 ): Promise<CreateUploadFormState> {
   const result = uploadSchema.safeParse({
-    images: formData.getAll('images'),
+    image: formData.get('image'),
   })
   if (!result.success) {
     console.log(result.error.flatten().fieldErrors)
@@ -29,7 +29,7 @@ export async function createUpload(
       errors: result.error.flatten().fieldErrors,
     }
   }
-  console.log(result?.data.images.length)
+  // console.log(result?.data.image.length)
 
   //   const session = await auth()
   //   if (!session || !session.user || session.user.role !== 'ADMIN') {
@@ -40,14 +40,15 @@ export async function createUpload(
   //     }
   //   }
 
-  console.log(result)
   let uploader: Uploader
   try {
     let imageId: string = ''
-    const file = result.data.images as File
-    const buffer = Buffer.from(await file.arrayBuffer())
-    const res = await uploadFileToS3(buffer, file.name)
+    const file = result.data.image as File
 
+    const buffer = Buffer.from(await file.arrayBuffer())
+    // console.log({ buffer })
+    const res = await uploadFileToS3(buffer, file.name)
+    // console.log(res)
     if (res?.imageId && typeof res.imageId === 'string') {
       imageId = res.imageId
       // Use the imageId as needed
@@ -61,7 +62,7 @@ export async function createUpload(
       },
     })
     // console.log(res?.imageUrl)
-    // console.log(category)
+    // console.log(uploader)
   } catch (err: unknown) {
     if (err instanceof Error) {
       return {
