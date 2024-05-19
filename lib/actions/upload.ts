@@ -23,13 +23,19 @@ export async function createUpload(
   const result = uploadSchema.safeParse({
     image: formData.get('image'),
   })
+
   if (!result.success) {
     console.log(result.error.flatten().fieldErrors)
     return {
       errors: result.error.flatten().fieldErrors,
     }
   }
-  // console.log(result?.data.image.length)
+  // console.log(result?.data.image)
+  // const fileBuffer = result?.data.image
+  //   const fileBuffer = await sharp(file)
+  //     .jpeg({ quality: 50 })
+  //     .resize(800, 400)
+  //     .toBuffer()
 
   //   const session = await auth()
   //   if (!session || !session.user || session.user.role !== 'ADMIN') {
