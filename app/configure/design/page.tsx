@@ -17,6 +17,9 @@ const Page = async ({ searchParams }: PageProps) => {
 
   const configuration = await prisma.configuration.findUnique({
     where: { id },
+    include: {
+      imageUrl: { select: { url: true } },
+    },
   })
 
   if (!configuration) {
@@ -24,12 +27,14 @@ const Page = async ({ searchParams }: PageProps) => {
   }
 
   const { imageUrl, width, height } = configuration
-
+  // console.log(imageUrl, width, height)
+  // console.log(configuration.id)
   return null
   // <DesignConfigurator
   //   configId={configuration.id}
   //   imageDimensions={{ width, height }}
   //   imageUrl={imageUrl}
+
   // />
 }
 

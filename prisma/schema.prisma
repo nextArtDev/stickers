@@ -51,10 +51,12 @@ model Image {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  User       User?     @relation(fields: [userId], references: [id])
-  userId     String?
-  Uploader   Uploader? @relation(fields: [uploaderId], references: [id])
-  uploaderId String?
+  User                    User?           @relation(fields: [userId], references: [id])
+  userId                  String?
+  Uploader                Uploader?       @relation(fields: [uploaderId], references: [id])
+  uploaderId              String?
+  configurationUrl        Configuration[] @relation(name: "ImageToUrl")
+  configurationCroppedUrl Configuration[] @relation(name: "ImageToCroppedUrl")
 }
 
 model Uploader {
@@ -103,11 +105,13 @@ model Configuration {
   id              String        @id @default(cuid())
   width           Int
   height          Int
-  imageUrl        String
+  imageUrl        Image         @relation(name: "ImageToUrl", fields: [imageId], references: [id])
   color           CaseColor?
   model           PhoneModel?
   material        CaseMaterial?
   finish          CaseFinish?
-  croppedImageUrl String?
+  croppedImageUrl Image?        @relation(name: "ImageToCroppedUrl", fields: [croppedImageId], references: [id])
   // Order           Order[]
+  imageId         String
+  croppedImageId  String?
 }
