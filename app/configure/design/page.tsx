@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 // import DesignConfigurator from './DesignConfigurator'
 import { prisma } from '@/lib/prisma'
+import DesignConfigurator from '@/components/DesignConfigurator'
 
 interface PageProps {
   searchParams: {
@@ -29,13 +30,13 @@ const Page = async ({ searchParams }: PageProps) => {
   const { imageUrl, width, height } = configuration
   // console.log(imageUrl, width, height)
   // console.log(configuration.id)
-  return null
-  // <DesignConfigurator
-  //   configId={configuration.id}
-  //   imageDimensions={{ width, height }}
-  //   imageUrl={imageUrl}
-
-  // />
+  return (
+    <DesignConfigurator
+      configId={configuration.id}
+      imageDimensions={{ width, height }}
+      imageUrl={imageUrl.url}
+    />
+  )
 }
 
 export default Page
