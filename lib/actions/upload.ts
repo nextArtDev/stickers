@@ -6,7 +6,14 @@ import { uploadFileToS3 } from './s3Upload'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { updateUploadSchema, uploadSchema } from '../schemas/upload'
-import { Configuration, Uploader } from '@prisma/client'
+import {
+  CaseColor,
+  CaseFinish,
+  CaseMaterial,
+  Configuration,
+  PhoneModel,
+  Uploader,
+} from '@prisma/client'
 import sharp from 'sharp'
 
 interface CreateUploadFormState {
@@ -112,7 +119,11 @@ export async function updateUpload(
 ): Promise<UpdateUploadFormState> {
   const result = updateUploadSchema.safeParse({
     image: formData.get('image'),
-    id: formData.get('id'),
+    color: formData.get('color'),
+    model: formData.get('model'),
+    material: formData.get('material'),
+    finish: formData.get('finish'),
+    id: formData.get('configId'),
   })
 
   if (!result.success) {
@@ -159,15 +170,19 @@ export async function updateUpload(
     configure = await prisma.configuration.update({
       where: { id: result.data.id },
       data: {
-        height: height ? height : 500,
-        width: width ? width : 500,
+        // height: height ? height : 500,
+        // width: width ? width : 500,
         croppedImageUrl: {
           connect: { id: imageId },
         },
+        color: result.data.color as CaseColor,
+        finish: result.data.finish as CaseFinish,
+        model: result.data.model as PhoneModel,
+        material: result.data.material as CaseMaterial,
       },
     })
     // console.log(res?.imageUrl)
-    // console.log(uploader)
+    // console.log(configure)
   } catch (err: unknown) {
     if (err instanceof Error) {
       return {

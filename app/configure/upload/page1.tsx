@@ -47,7 +47,7 @@ const Page = () => {
   }
 
   const onDropAccepted = (acceptedFiles: File) => {
-    console.log(acceptedFiles)
+    // console.log(acceptedFiles)
     const formData = new FormData()
 
     formData.append('images', acceptedFiles)

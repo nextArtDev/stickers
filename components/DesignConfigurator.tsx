@@ -33,7 +33,8 @@ import { BASE_PRICE } from '@/config/products'
 import { useToast } from '@/components/ui/use-toast'
 import { useMutation } from '@tanstack/react-query'
 // import { saveConfig as _saveConfig, SaveConfigArgs } from './actions'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
+import { updateUpload } from '@/lib/actions/upload'
 
 interface DesignConfiguratorProps {
   configId: string
@@ -48,6 +49,7 @@ const DesignConfigurator = ({
 }: DesignConfiguratorProps) => {
   const { toast } = useToast()
   const router = useRouter()
+  const path = usePathname()
 
   // const { mutate: saveConfig, isPending } = useMutation({
   //   mutationKey: ['save-config'],
@@ -93,7 +95,17 @@ const DesignConfigurator = ({
 
   // const { startUpload } = useUploadThing('imageUploader')
 
-  async function saveConfiguration() {
+  async function saveConfiguration({
+    color,
+    model,
+    material,
+    finish,
+  }: {
+    color: string
+    model: string
+    material: string
+    finish: string
+  }) {
     try {
       const {
         left: caseLeft,
@@ -134,8 +146,17 @@ const DesignConfigurator = ({
 
       const blob = base64ToBlob(base64Data, 'image/png')
       const file = new File([blob], 'filename.png', { type: 'image/png' })
+      // console.log(file)
+      const formData = new FormData()
 
+      formData.append('image', file)
+      formData.append('color', color)
+      formData.append('model', model)
+      formData.append('material', material)
+      formData.append('finish', finish)
+      formData.append('configId', configId)
       // await startUpload([file], { configId })
+      await updateUpload(formData, path)
     } catch (err) {
       toast({
         title: 'Something went wrong',
@@ -403,15 +424,14 @@ const DesignConfigurator = ({
                 // isLoading={isPending}
                 // disabled={isPending}
                 // loadingText="Saving"
-                // onClick={() =>
-                //   saveConfig({
-                //     configId,
-                //     color: options.color.value,
-                //     finish: options.finish.value,
-                //     material: options.material.value,
-                //     model: options.model.value,
-                //   })
-                // }
+                onClick={() =>
+                  saveConfiguration({
+                    color: options.color.value,
+                    finish: options.finish.value,
+                    material: options.material.value,
+                    model: options.model.value,
+                  })
+                }
                 size="sm"
                 className="w-full"
               >
