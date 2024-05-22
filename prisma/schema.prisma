@@ -34,8 +34,10 @@ model User {
   website  String?
   gender   String?
 
-  images   Image[]
-  Uploader Uploader[]
+  images        Image[]
+  Uploader      Uploader[]
+  Order         Order[]
+  Configuration Configuration[]
 }
 
 enum Role {
@@ -111,7 +113,52 @@ model Configuration {
   material        CaseMaterial?
   finish          CaseFinish?
   croppedImageUrl Image?        @relation(name: "ImageToCroppedUrl", fields: [croppedImageId], references: [id])
-  // Order           Order[]
+  Order           Order[]
   imageId         String
   croppedImageId  String?
+  User            User?         @relation(fields: [userId], references: [id])
+  userId          String?
+}
+
+model Order {
+  id              String        @id @default(cuid())
+  configurationId String
+  configuration   Configuration @relation(fields: [configurationId], references: [id])
+  user            User          @relation(fields: [userId], references: [id])
+  userId          String
+  amount          Float
+  isPaid          Boolean       @default(false)
+  status          OrderStatus   @default(awaiting_shipment)
+
+  shippingAddress   ShippingAddress? @relation(fields: [shippingAddressId], references: [id])
+  shippingAddressId String?
+  billingAddress    BillingAddress?  @relation(fields: [billingAddressId], references: [id])
+  billingAddressId  String?
+
+  createdAt DateTime @default(now())
+  updated   DateTime @updatedAt
+}
+
+model ShippingAddress {
+  id          String  @id @default(cuid())
+  name        String
+  street      String
+  city        String
+  postalCode  String
+  country     String
+  state       String?
+  phoneNumber String?
+  orders      Order[]
+}
+
+model BillingAddress {
+  id          String  @id @default(cuid())
+  name        String
+  street      String
+  city        String
+  postalCode  String
+  country     String
+  state       String?
+  phoneNumber String?
+  orders      Order[]
 }

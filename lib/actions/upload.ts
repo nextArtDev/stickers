@@ -200,5 +200,6 @@ export async function updateUpload(
   }
 
   revalidatePath(path)
-  redirect(`/configure/design?id=${configure.id}`)
+  // /configure/preview?id=${configId}
+  redirect(`/configure/preview?id=${configure.id}`)
 }
