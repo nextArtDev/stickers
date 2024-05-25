@@ -16,8 +16,9 @@ import {
   Uploader,
 } from '@prisma/client'
 import sharp from 'sharp'
-import { currentUser } from '../auth'
+
 import { BASE_PRICE, PRODUCT_PRICES } from '@/config/products'
+import { currentUser } from '../auth'
 
 interface CreateUploadFormState {
   // success?: string
@@ -223,11 +224,10 @@ export const createCheckoutSession = async ({
   }
 
   const user = await currentUser()
-
   if (!user?.id) {
     throw new Error('You need to be logged in')
   }
-
+  // console.log(user.id)
   const { finish, material } = configuration
 
   let price = BASE_PRICE
@@ -237,27 +237,36 @@ export const createCheckoutSession = async ({
 
   let order: Order | undefined = undefined
 
-  const existingOrder = await prisma.order.findFirst({
-    where: {
-      userId: user.id,
-      configurationId: configuration.id,
-    },
-  })
-
-  // console.log(user.id, configuration.id)
-
-  if (existingOrder) {
-    order = existingOrder
-  } else {
-    order = await prisma.order.create({
-      data: {
-        amount: price / 100,
+  try {
+    const existingOrder = await prisma.order.findFirst({
+      where: {
         userId: user.id,
         configurationId: configuration.id,
       },
     })
-  }
 
+    if (existingOrder) {
+      order = existingOrder
+      console.log(order)
+    } else {
+      order = await prisma.order.create({
+        data: {
+          amount: Number(price) / 100,
+          // userId: user.id,
+          // configurationId: configuration.id,
+          user: {
+            connect: { id: user.id },
+          },
+          configuration: {
+            connect: { id: configuration.id },
+          },
+        },
+      })
+    }
+  } catch (error) {
+    // console.log(error)
+  }
+  // console.log(order)
   // const product = await stripe.products.create({
   //   name: 'Custom iPhone Case',
   //   images: [configuration.imageUrl],
@@ -280,5 +289,5 @@ export const createCheckoutSession = async ({
   //   line_items: [{ price: product.default_price as string, quantity: 1 }],
   // })
 
-  return { orderId: order.id }
+  return { orderId: order?.id }
 }

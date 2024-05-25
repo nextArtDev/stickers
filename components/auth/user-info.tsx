@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+
 import { ExtendedUser } from '@/types/next-auth'
 import { ShieldCheck, ShieldX } from 'lucide-react'
 

@@ -16,10 +16,12 @@ import { useEffect, useState } from 'react'
 import Confetti from 'react-dom-confetti'
 // import { createCheckoutSession } from './actions'
 import { useRouter } from 'next/navigation'
-import { useToast } from '@/components/ui/use-toast'
+// import { useToast } from '@/components/ui/use-toast'
 // import { useKindeBrowserClient } from '@kinde-oss/kinde-auth-nextjs'
 import LoginModal from '@/components/LoginModal'
 import { ExtendedUserWithoutEmail } from '@/types/next-auth'
+import { createCheckoutSession } from '@/lib/actions/upload'
+import { toast } from 'sonner'
 
 const DesignPreview = ({
   configuration,
@@ -31,7 +33,7 @@ const DesignPreview = ({
   user: ExtendedUserWithoutEmail | undefined
 }) => {
   const router = useRouter()
-  const { toast } = useToast()
+  // const { toast } = useToast()
   const { id } = configuration
   // const { user } = useKindeBrowserClient()
   const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(false)
@@ -54,24 +56,21 @@ const DesignPreview = ({
 
   const { mutate: createPaymentSession } = useMutation({
     mutationKey: ['get-checkout-session'],
-    // mutationFn: createCheckoutSession,
-    // onSuccess: ({ url }) => {
-    //   if (url) router.push(url)
-    //   else throw new Error('Unable to retrieve payment URL.')
-    // },
-    // onError: () => {
-    //   toast({
-    //     title: 'Something went wrong',
-    //     description: 'There was an error on our end. Please try again.',
-    //     variant: 'destructive',
-    //   })
-    // },
+    mutationFn: createCheckoutSession,
+    onSuccess: ({ orderId }) => {
+      // if (orderId) router.push(orderId)
+      if (orderId) toast.success('Operation Passed')
+      else throw new Error('Unable to retrieve payment URL.')
+    },
+    onError: () => {
+      toast.error('Something went wrong')
+    },
   })
 
   const handleCheckout = () => {
     if (user) {
       // create payment session
-      // createPaymentSession({ configId: id })
+      createPaymentSession({ configId: id })
     } else {
       // need to log in
       localStorage.setItem('configurationId', id)

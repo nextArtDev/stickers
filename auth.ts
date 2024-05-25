@@ -88,17 +88,17 @@ export const {
       if (!existingUser) return token
 
       //   const existingAccount = await getAccountByUserId(existingUser.id)
-      if (existingUser.imageId) {
-        const image = await getImageById(existingUser.imageId)
-        token.picture = image?.url
-      }
+      // if (existingUser.imageId) {
+      //   const image = await getImageById(existingUser.imageId)
+      //   token.picture = image?.url
+      // }
       // We do all them to update session when we update user
       // token.isOAuth = !!existingUser
       token.name = existingUser.name
       token.phone = existingUser.phone
       token.role = existingUser.role
       token.isVerified = existingUser.isVerified
-      token.picture = existingUser.image?.url
+      // token.picture = existingUser.image?.url
 
       return token
     },
