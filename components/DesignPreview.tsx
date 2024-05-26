@@ -15,7 +15,7 @@ import { ArrowRight, Check } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import Confetti from 'react-dom-confetti'
 // import { createCheckoutSession } from './actions'
-import { useRouter } from 'next/navigation'
+import { redirect, useRouter } from 'next/navigation'
 // import { useToast } from '@/components/ui/use-toast'
 // import { useKindeBrowserClient } from '@kinde-oss/kinde-auth-nextjs'
 import LoginModal from '@/components/LoginModal'
@@ -59,8 +59,12 @@ const DesignPreview = ({
     mutationFn: createCheckoutSession,
     onSuccess: ({ orderId }) => {
       // if (orderId) router.push(orderId)
-      if (orderId) toast.success('Operation Passed')
-      else throw new Error('Unable to retrieve payment URL.')
+      console.log(orderId)
+      if (orderId) {
+        toast.success('Operation Passed')
+
+        router.push(`/thank-you?orderId=${orderId}`)
+      } else throw new Error('Unable to retrieve payment URL.')
     },
     onError: () => {
       toast.error('Something went wrong')

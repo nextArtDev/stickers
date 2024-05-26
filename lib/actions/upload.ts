@@ -247,7 +247,7 @@ export const createCheckoutSession = async ({
 
     if (existingOrder) {
       order = existingOrder
-      console.log(order)
+      // console.log(order)
     } else {
       order = await prisma.order.create({
         data: {
@@ -263,9 +263,13 @@ export const createCheckoutSession = async ({
         },
       })
     }
+
+    // console.log(order?.id)
+    return { orderId: order?.id }
   } catch (error) {
-    // console.log(error)
+    console.log(error)
   }
+  redirect(`/thank-you?orderId=${order?.id}`)
   // console.log(order)
   // const product = await stripe.products.create({
   //   name: 'Custom iPhone Case',
@@ -289,5 +293,5 @@ export const createCheckoutSession = async ({
   //   line_items: [{ price: product.default_price as string, quantity: 1 }],
   // })
 
-  return { orderId: order?.id }
+  // redirect('/')
 }
